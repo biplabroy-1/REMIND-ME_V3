@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -14,7 +14,9 @@ const HEADER_HEIGHT = 400;
 type Props = PropsWithChildren<{
   headerContent: ReactElement;
   headerBackgroundColor: { dark: string; light: string };
-  refreshControl?: ReactElement; // Added refreshControl prop
+  refreshControl?: ReactElement;
+  onScrollEndReached: () => void;
+  onScrollTopReached: () => void;
 }>;
 
 export default function ParallaxScrollView({
@@ -22,8 +24,10 @@ export default function ParallaxScrollView({
   headerContent,
   headerBackgroundColor,
   refreshControl,
+  onScrollEndReached,
+  onScrollTopReached,
 }: Props) {
-  
+
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
@@ -45,12 +49,23 @@ export default function ParallaxScrollView({
     };
   });
 
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY >= event.nativeEvent.contentSize.height - event.nativeEvent.layoutMeasurement.height) {
+      onScrollEndReached();
+    }
+    if (offsetY <= 0) {
+      onScrollTopReached();
+    }
+  };
+
   return (
     <ThemedView style={styles.container}>
       <Animated.ScrollView
         ref={scrollRef}
         scrollEventThrottle={16}
-        refreshControl={refreshControl} // Pass refreshControl to Animated.ScrollView
+        refreshControl={refreshControl}
+        onScroll={handleScroll}
       >
         <Animated.View
           style={[
@@ -77,8 +92,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    borderTopStartRadius:20,
-    borderTopRightRadius:20,
+    borderTopStartRadius: 20,
+    borderTopRightRadius: 20,
     overflow: 'hidden',
   },
 });

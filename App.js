@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, TouchableOpacity, RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { Text, View, TouchableOpacity, RefreshControl, ScrollView, Alert, BackHandler } from 'react-native';
 import ParallaxScrollView from './Components/ParallaxScrollView';
 import Sidebar from './Components/Sidebar';
 
 export default function App() {
-  const [classSchedule, setClassSchedule] = useState({});
+  const [classSchedule, setClassSchedule] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isMainScrollEnabled, setIsMainScrollEnabled] = useState(false);
 
   const Username = 'Biplab Roy';
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -16,16 +17,37 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(dayName);
 
+  const showAlert = (message, Retry) => {
+    Alert.alert(
+      'Alert ⚠️',
+      `${message}`,
+      [
+        {
+          text: 'Exit App',
+          onPress: () => BackHandler.exitApp(),
+          style: 'Exit',
+        },
+        {
+          text: 'OK',
+          onPress: () => Retry(),
+        },
+      ],
+      { cancelable: false } // Set to true if you want the alert to be dismissible by tapping outside
+    );
+  };
+
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const response = await fetch('http://192.168.0.131:8000/schedule'); // Update IP address here
+      const response = await fetch('http://192.168.0.131:8000/schedule');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setClassSchedule(data);
     } catch (error) {
+      showAlert(error, onRefresh);
       console.error('Failed to fetch schedule:', error);
     } finally {
       setRefreshing(false);
@@ -36,6 +58,13 @@ export default function App() {
     onRefresh();
   }, []);
 
+  const handleScrollEndReached = () => {
+    setIsMainScrollEnabled(true);
+  };
+
+  const handleScrollTopReached = () => {
+    setIsMainScrollEnabled(false);
+  };
 
   return (
     <View className='flex-1 bg-[#A1CEDC]'>
@@ -67,6 +96,8 @@ export default function App() {
             titleColor="#009688"
           />
         }
+        onScrollEndReached={handleScrollEndReached}
+        onScrollTopReached={handleScrollTopReached}
       >
         <View className='h-[90vh]'>
           <View className='p-2 justify-evenly flex-row w-full sticky'>
@@ -79,38 +110,10 @@ export default function App() {
               </Text>
             ))}
           </View>
-          <ScrollView nestedScrollEnabled={true}>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
+          <ScrollView
+            nestedScrollEnabled={true}
+            scrollEnabled={isMainScrollEnabled}
+          >
             <Text>Hello</Text>
           </ScrollView>
         </View>

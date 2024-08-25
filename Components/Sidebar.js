@@ -1,10 +1,21 @@
-// Components/Sidebar.js
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Animated, Easing, TouchableOpacity } from 'react-native';
 import { formatAMPM } from './Utils/Date';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [currentTime, setCurrentTime] = useState(formatAMPM(new Date()));
+
+    // Animated value for the sidebar's position
+    const translateX = React.useRef(new Animated.Value(-400)).current; // Initial position off-screen
+
+    useEffect(() => {
+        Animated.timing(translateX, {
+            toValue: isOpen ? 0 : -400, // 0 when open, -300 when closed
+            duration: 400, // Duration of the animation
+            easing: Easing.ease,
+            useNativeDriver: true,
+        }).start();
+    }, [isOpen]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -13,16 +24,26 @@ const Sidebar = ({ isOpen, onClose }) => {
         return () => clearInterval(timer);
     }, []);
 
-    if (!isOpen) return null;
-
     return (
-        <View className='h-screen absolute top-0 left-0 w-4/5 p-14 pl-5 z-50 bg-slate-500 '>
-            <View className='mt-4 flex-1 items-center bg-slate-200'>
-                <Text className='text-3xl text-center border-b-2'>{currentTime}</Text>
-                <Text className='text-base my-2'>Option 2</Text>
-                <Text className='text-base my-2'>Option 3</Text>
+        <Animated.View
+            style={{
+                transform: [{ translateX }],
+                position: 'absolute',
+                top: 0,
+                height: '100%',
+                width: '100%',
+                backgroundColor: '#374151', // Darker background for visibility
+                padding: 14,
+                zIndex: 50,
+                justifyContent: 'space-between',
+            }}
+        >
+            <View className='flex-1 mt-12'>
+                <Text className='text-3xl text-center text-white border-b-2 border-b-[#E5E7EB] p-4'>{currentTime}</Text>
+                <Text className='text-lg text-center my-4 text-white'>Option 2</Text>
+                <Text className='text-lg text-center my-4 text-white'>Option 3</Text>
             </View>
-        </View>
+        </Animated.View>
     );
 };
 
