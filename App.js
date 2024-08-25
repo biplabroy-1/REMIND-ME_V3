@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState, useCallback } from 'react';
-import { Text, View, TouchableOpacity, RefreshControl, FlatList } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, TouchableOpacity, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import ParallaxScrollView from './Components/ParallaxScrollView';
 import Sidebar from './Components/Sidebar';
 
@@ -32,7 +32,7 @@ export default function App() {
     }
   }, []);
 
-  useState(() => {
+  useEffect(() => {
     onRefresh();
   }, []);
 
@@ -61,14 +61,14 @@ export default function App() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#009688']} // Optional: Customize the color of the spinner
-            tintColor="#009688" // Optional: Customize the color of the spinner (iOS)
+            colors={['#009688']}
+            tintColor="#009688"
             title="Pull to refresh"
-            titleColor="#009688" // Optional: Customize the title color (iOS)
+            titleColor="#009688"
           />
         }
       >
-        <View className='min-h-[90vh]'>
+        <View className='h-[90vh]'>
           <View className='p-2 justify-evenly flex-row w-full sticky'>
             {dayNames.map((day) => (
               <Text key={day} onPress={() => setSelectedDay(day)}
@@ -79,27 +79,40 @@ export default function App() {
               </Text>
             ))}
           </View>
-          <View className='flex-1 items-center'>
-            
-            <View className={`relative mb-4 p-4 border-[1.5px] rounded-xl ${classSchedule.Class_type === 'Free' ? 'border-red-300 bg-red-50' : (classSchedule.Class_type === 'Lab' ? 'border-blue-300 bg-blue-50' : 'border-green-300 bg-green-50')}`}>
-              <View className='flex-row justify-between items-center'>
-                <Text className="text-xs font-medium">Time: {classSchedule.New_Time}</Text>
-                <View className={`${classSchedule.Class_type === 'Free' ? 'bg-red-700' : (classSchedule.Class_type === 'Lab' ? 'bg-blue-700' : 'bg-green-700')} rounded-full px-3 py-1`}>
-                  <Text className='text-white font-bold text-xs'>{classSchedule.Class_type}</Text>
-                </View>
-              </View>
-              <Text className="text-lg font-bold text-slate-900">{classSchedule.Course_Name}</Text>
-              <Text className={`text-lg font-bold text-stone-800 ${classSchedule.Class_type === 'Free' ? 'hidden' : ''}`}>
-                {classSchedule.Group === 'All' ? 'All Group' : classSchedule.Group}
-              </Text>
-              <View className="flex-row mt-2 justify-between items-center mb-2.5">
-                <View>
-                  <Text className={`text-xs w-48 ${classSchedule.Class_type === 'Free' ? 'hidden' : ''}`}>Instructor: {classSchedule.Instructor}</Text>
-                </View>
-                <Text className={`${classSchedule.Class_type === 'Free' ? 'hidden' : ''}`}>UB {classSchedule.Building} : {classSchedule.Room}</Text>
-              </View>
-            </View>
-          </View>
+          <ScrollView nestedScrollEnabled={true}>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
+          </ScrollView>
         </View>
       </ParallaxScrollView >
       <StatusBar style='auto' />
