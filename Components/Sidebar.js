@@ -1,69 +1,29 @@
-import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+// Components/Sidebar.js
+import React, { useEffect, useState } from 'react';
+import { View, Text } from 'react-native';
+import { formatAMPM } from './Utils/Date';
 
-const Sidebar = ({ visible, onClose }) => {
-    const [feedback, setFeedback] = React.useState('');
+const Sidebar = ({ isOpen, onClose }) => {
+    const [currentTime, setCurrentTime] = useState(formatAMPM(new Date()));
 
-    const handleSubmit = () => {
-        // Handle feedback submission here
-        console.log('Feedback submitted:', feedback);
-        setFeedback('');
-        onClose(); // Close the sidebar after submission
-    };
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(formatAMPM(new Date()));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    if (!isOpen) return null;
 
     return (
-        <Modal
-            transparent={true}
-            visible={visible}
-            animationType="slide"
-            onRequestClose={onClose}
-        >
-            <TouchableOpacity style={styles.overlay} onPress={onClose}>
-                <View style={styles.sidebar}>
-                    <Text style={styles.title}>Feedback</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Write your feedback here..."
-                        multiline
-                        value={feedback}
-                        onChangeText={setFeedback}
-                    />
-                    <Button title="Submit Feedback" onPress={handleSubmit} />
-                </View>
-            </TouchableOpacity>
-        </Modal>
+        <View className='h-screen absolute top-0 left-0 w-4/5 p-14 pl-5 z-50 bg-slate-500 '>
+            <View className='mt-4 flex-1 items-center bg-slate-200'>
+                <Text className='text-3xl text-center border-b-2'>{currentTime}</Text>
+                <Text className='text-base my-2'>Option 2</Text>
+                <Text className='text-base my-2'>Option 3</Text>
+            </View>
+        </View>
     );
 };
-
-const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-    },
-    sidebar: {
-        width: 300,
-        backgroundColor: 'white',
-        padding: 16,
-        borderTopLeftRadius: 16,
-        borderBottomLeftRadius: 16,
-        height: '100%',
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 16,
-    },
-    input: {
-        height: 150,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        marginBottom: 16,
-        padding: 8,
-        textAlignVertical: 'top',
-    },
-});
 
 export default Sidebar;
