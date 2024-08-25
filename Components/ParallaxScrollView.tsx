@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme, RefreshControl } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -14,12 +14,14 @@ const HEADER_HEIGHT = 400;
 type Props = PropsWithChildren<{
   headerContent: ReactElement;
   headerBackgroundColor: { dark: string; light: string };
+  refreshControl?: ReactElement; // Added refreshControl prop
 }>;
 
 export default function ParallaxScrollView({
   children,
   headerContent,
   headerBackgroundColor,
+  refreshControl, // Destructure the refreshControl prop
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
@@ -44,7 +46,11 @@ export default function ParallaxScrollView({
 
   return (
     <ThemedView style={styles.container}>
-      <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
+      <Animated.ScrollView
+        ref={scrollRef}
+        scrollEventThrottle={16}
+        refreshControl={refreshControl} // Pass refreshControl to Animated.ScrollView
+      >
         <Animated.View
           style={[
             styles.header,
@@ -70,7 +76,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    borderRadius:15,
+    borderRadius: 15,
     overflow: 'hidden',
   },
 });

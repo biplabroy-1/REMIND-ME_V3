@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Text, View, TouchableOpacity, RefreshControl, FlatList } from 'react-native';
 import ParallaxScrollView from './Components/ParallaxScrollView';
 import Sidebar from './Components/Sidebar';
 
-
-
 export default function App() {
-  const [classSchedule, setclassSchedule] = useState({})
+  const [classSchedule, setClassSchedule] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
+
   const Username = 'Biplab Roy';
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const day = new Date().getDay();
@@ -16,19 +16,25 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(dayName);
 
-  // Check if classSchedule has any properties
-  if (Object.keys(classSchedule).length == 0) {
-    setclassSchedule({
-      New_Time: '100 AM - 11:00 AM',
-      Class_type: 'Lab',
-      Course_Name: 'CSE 101',
-      Group: 'All',
-      Instructor: 'Dr. John Doe',
-      Building: '1',
-      Room: '101'
-    })
-  }
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch('http://192.168.0.131:8000/schedule'); // Update IP address here
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setClassSchedule(data);
+    } catch (error) {
+      console.error('Failed to fetch schedule:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
+  useState(() => {
+    onRefresh();
+  }, []);
 
 
   return (
@@ -50,7 +56,18 @@ export default function App() {
             <Text className='font-semibold text-2xl text-center'>Hello {Username}</Text>
             <Text className='text-lg text-center'>Today is {dayName}</Text>
           </View>
-        }>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#009688']} // Optional: Customize the color of the spinner
+            tintColor="#009688" // Optional: Customize the color of the spinner (iOS)
+            title="Pull to refresh"
+            titleColor="#009688" // Optional: Customize the title color (iOS)
+          />
+        }
+      >
         <View className='min-h-[90vh]'>
           <View className='p-2 justify-evenly flex-row w-full sticky'>
             {dayNames.map((day) => (
@@ -63,6 +80,7 @@ export default function App() {
             ))}
           </View>
           <View className='flex-1 items-center'>
+            
             <View className={`relative mb-4 p-4 border-[1.5px] rounded-xl ${classSchedule.Class_type === 'Free' ? 'border-red-300 bg-red-50' : (classSchedule.Class_type === 'Lab' ? 'border-blue-300 bg-blue-50' : 'border-green-300 bg-green-50')}`}>
               <View className='flex-row justify-between items-center'>
                 <Text className="text-xs font-medium">Time: {classSchedule.New_Time}</Text>
