@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Animated, Easing, TouchableOpacity } from 'react-native';
+import { View, Text, Animated, Easing, Dimensions } from 'react-native';
 import { formatAMPM } from './Utils/Date';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const [currentTime, setCurrentTime] = useState(formatAMPM(new Date()));
 
+    // Get screen width
+    const { width: screenWidth } = Dimensions.get('window');
+
     // Animated value for the sidebar's position
-    const translateX = React.useRef(new Animated.Value(-400)).current; // Initial position off-screen
+    const translateX = React.useRef(new Animated.Value(-screenWidth)).current; // Initial position off-screen
 
     useEffect(() => {
         Animated.timing(translateX, {
-            toValue: isOpen ? 0 : -400, // 0 when open, -300 when closed
+            toValue: isOpen ? 0 : -screenWidth, // 0 when open, -screenWidth when closed
             duration: 400, // Duration of the animation
             easing: Easing.ease,
             useNativeDriver: true,
         }).start();
-    }, [isOpen]);
+    }, [isOpen, screenWidth]);
 
     useEffect(() => {
         const timer = setInterval(() => {
