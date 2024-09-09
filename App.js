@@ -10,7 +10,7 @@ export default function App() {
   const [isMainScrollEnabled, setIsMainScrollEnabled] = useState(false);
 
   const Username = 'Biplab Roy';
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const day = new Date().getDay();
   const dayName = dayNames[day];
 
@@ -23,12 +23,12 @@ export default function App() {
       `${message}`,
       [
         {
-          text: 'Exit App',
+          text: 'Exit',
           onPress: () => BackHandler.exitApp(),
           style: 'Exit',
         },
         {
-          text: 'OK',
+          text: 'Retry',
           onPress: () => Retry(),
         },
       ],
@@ -40,7 +40,7 @@ export default function App() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const response = await fetch('http://192.168.0.131:8000/schedule');
+      const response = await fetch('http://192.168.119.94:5000/api/schedule/ids');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -89,7 +89,6 @@ export default function App() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
             colors={['#009688']}
             tintColor="#009688"
             title="Pull to refresh"
@@ -103,7 +102,7 @@ export default function App() {
           <View className='p-2 justify-evenly flex-row w-full sticky'>
             {dayNames.map((day) => (
               <Text key={day} onPress={() => setSelectedDay(day)}
-                className={`my-2 mx-4 ${day === 'Sunday' || day === 'Saturday' ? 'text-red-500' : 'text-black'}  ${selectedDay === day ? 'border-b-2 border-blue-500' : ''
+                className={`my-2 text-[16px] px-2 mx-2 ${day === 'Sunday' || day === 'Saturday' ? 'text-red-500' : 'text-black'}  ${selectedDay === day ? 'border-b-2 border-blue-500 font-semibold duration-300' : ''
                   }`}
               >
                 {day.slice(0, 3)}
@@ -111,9 +110,19 @@ export default function App() {
             ))}
           </View>
           <ScrollView
+            className='flex-1 px-4'
             nestedScrollEnabled={true}
             scrollEnabled={isMainScrollEnabled}
           >
+            {/* {classSchedule
+              .filter((item) => item.day === selectedDay)
+              .map((item) => (
+                <View key={item.id} className='flex-row justify-between p-2 border-b-2 border-gray-400'>
+                  <Text className='text-lg'>{item.time}</Text>
+                  <Text className='text-lg'>{item.subject}</Text>
+                  <Text className='text-lg'>{item.teacher}</Text>
+                </View>
+              ))} */}
             <Text>Hello</Text>
           </ScrollView>
         </View>

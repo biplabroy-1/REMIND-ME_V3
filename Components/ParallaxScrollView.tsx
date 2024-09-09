@@ -1,11 +1,7 @@
-import type { PropsWithChildren, ReactElement } from 'react';
+import { useState } from 'react';
 import { StyleSheet, useColorScheme, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from 'react-native-reanimated';
+import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated';
+import type { PropsWithChildren, ReactElement } from 'react';
 
 import { ThemedView } from './Utils/ThemedView';
 
@@ -27,7 +23,8 @@ export default function ParallaxScrollView({
   onScrollEndReached,
   onScrollTopReached,
 }: Props) {
-
+  const [isOuterScrollEnabled, setIsOuterScrollEnabled] = useState(true); // For controlling outer scroll
+  const [isInnerScrollEnabled, setIsInnerScrollEnabled] = useState(false); // For controlling inner scroll
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
@@ -50,19 +47,30 @@ export default function ParallaxScrollView({
   });
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    if (offsetY >= event.nativeEvent.contentSize.height - event.nativeEvent.layoutMeasurement.height) {
-      onScrollEndReached();
-    }
-    if (offsetY <= 0) {
-      onScrollTopReached();
+    // Prevent the event from being nullified
+    event.persist();
+
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+
+    if (contentOffset?.y !== undefined && contentSize?.height !== undefined && layoutMeasurement?.height !== undefined) {
+      if (contentOffset.y >= contentSize.height - layoutMeasurement.height - 10) {
+        setIsOuterScrollEnabled(false);  // Disable outer scroll
+        setIsInnerScrollEnabled(true);   // Enable inner scroll
+        onScrollEndReached();
+      } else if (contentOffset.y <= 10) {
+        setIsOuterScrollEnabled(true);   // Enable outer scroll
+        setIsInnerScrollEnabled(false);  // Disable inner scroll
+        onScrollTopReached();
+      }
     }
   };
+
 
   return (
     <ThemedView style={styles.container}>
       <Animated.ScrollView
         ref={scrollRef}
+        scrollEnabled={isOuterScrollEnabled}
         scrollEventThrottle={16}
         refreshControl={refreshControl}
         onScroll={handleScroll}
@@ -72,7 +80,8 @@ export default function ParallaxScrollView({
             styles.header,
             { backgroundColor: headerBackgroundColor[colorScheme] },
             headerAnimatedStyle,
-          ]}>
+          ]}
+        >
           {headerContent}
         </Animated.View>
         <ThemedView style={styles.content}>{children}</ThemedView>
